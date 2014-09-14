@@ -235,7 +235,7 @@ public class Menu extends AbstractScreen {
 		if(Math.abs(x - x2)/PPM >= nextSprite/PPM)
 		{
 			if(leftWall.getBody().getPosition().x < 40/PPM){
-			//addObstacles();
+			addObstacles();
 			}
 			
 			x2 = x;
@@ -271,7 +271,7 @@ public class Menu extends AbstractScreen {
 			ledge.render(sb);
 		}
 		
-		System.out.println(runTime);
+		//System.out.println(runTime);
 		
 		if((int)runTime % 4 == 0 ){
 			b = true;
@@ -414,7 +414,7 @@ public class Menu extends AbstractScreen {
 
 	public void update(float dt) {
 		runTime += dt;
-		System.out.println("MENU");
+		//System.out.println("MENU");
 		lastState = state;
 		handleInput();
 		
@@ -649,6 +649,30 @@ public class Menu extends AbstractScreen {
 		//def.position.set(randInt(0,(320-(Game.V_WIDTH/5)-3))/PPM,(cam.position.y - (Game.V_HEIGHT*2)/PPM));
 		//def.position.set(((Game.V_WIDTH/5)+3)/PPM,(cam.position.y - (Game.V_HEIGHT*2)/PPM));
 		def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		
+		boolean redo = false;
+		
+		
+		while(redo){
+		if(def.position.x == 1.6){
+			redo = true;
+			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		}
+		else if(def.position.x >= 1.6 && def.position.x <= 5){
+			redo = true;
+			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		}
+		
+		else if(def.position.x <= 1.6 && def.position.x >= -2 ){
+			redo = true;
+			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		}
+		else{
+			redo = false;
+		}
+		}
+		
+		System.out.println("---------" + def.position.x);
 
 		def.type = BodyType.StaticBody;
 		Body body = world.createBody(def);
@@ -692,6 +716,7 @@ public class Menu extends AbstractScreen {
 	
 	public void addPlatforms()
 	{
+		
 		if(Math.random() <= .25)
 		{
 			addLeftPlatform();

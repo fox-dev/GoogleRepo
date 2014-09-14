@@ -30,7 +30,7 @@ public class Wall {
 				);
 		sb.end();
 		
-		System.out.println(width + " " + height);
+		//System.out.println(width + " " + height);
 	}
 	
 	public void setPosition(float y)
