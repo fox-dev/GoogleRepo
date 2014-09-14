@@ -44,7 +44,7 @@ class LightMap {
 
 	public void render() {
 
-		System.out.println(" ++++++++++++++++++++ " + frameBuffer.getWidth());
+		
 		boolean needed = rayHandler.lightRenderedLastFrame > 0;
 		// this way lot less binding
 		if (needed && rayHandler.blur)

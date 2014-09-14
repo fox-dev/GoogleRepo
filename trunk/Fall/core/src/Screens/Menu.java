@@ -97,6 +97,17 @@ public class Menu extends AbstractScreen {
 	private DelayedRemovalArray<StaticSprite> ledgeList = new DelayedRemovalArray<StaticSprite>();
 	private DelayedRemovalArray<ConeLight> lightList = new DelayedRemovalArray<ConeLight>();
 	private DelayedRemovalArray<PointLight> lightListP = new DelayedRemovalArray<PointLight>();
+	
+	//CAMSTUFF
+	private float camZoom = 0.90f;
+	
+	//WALLSTUFF
+	private long wallInterval = 0;
+	
+	int r = randInt(5000, 40000);
+
+	boolean down = false;
+	private boolean wallEvent = false;
 
 	public Menu(GameScreenManager gsm) {
 		super(gsm);
@@ -259,8 +270,9 @@ public class Menu extends AbstractScreen {
                 (player.getPosition().y) * PPM - CL,
                 0
        );
-		cam.update();
 		
+		cam.zoom = camZoom;
+		cam.update();
 		sb.setProjectionMatrix(cam.combined);
 		
 		
@@ -329,10 +341,12 @@ public class Menu extends AbstractScreen {
                 player.getPosition().x,player.getPosition().y - CL/PPM,
                 0
         );
+		b2dCam.zoom = camZoom;
 		b2dCam.update();
 		
 		
 		
+		wallEvent();
 		capVelocity();
 		
 		font.setColor(1f, 1f, 1f, fadeIn);
@@ -360,6 +374,7 @@ public class Menu extends AbstractScreen {
 		float h = font.getBounds("START").height;
 		font.draw(sb, "START", cam.position.x - w/2 , cam.position.y + h/2);
 		sb.end();
+		
 		
 		
 		
@@ -651,36 +666,55 @@ public class Menu extends AbstractScreen {
 		def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
 		
 		boolean redo = false;
+		System.out.println("+" + def.position.x);
 		
-		
-		while(redo){
 		if(def.position.x == 1.6){
+			System.out.println("Redoing1");
 			redo = true;
-			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+			//def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+
 		}
-		else if(def.position.x >= 1.6 && def.position.x <= 5){
+		else if(def.position.x >= 1.6f && def.position.x <= 2.4f){
+			System.out.println("Redoing2");
 			redo = true;
-			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+			//def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+			
 		}
 		
-		else if(def.position.x <= 1.6 && def.position.x >= -2 ){
+		else if(def.position.x <= 1.6f && def.position.x >= 0.9f ){
+			System.out.println("Redoing3");
 			redo = true;
-			def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+			//def.position.set(randInt(((MainGame.V_WIDTH/5)+3),(320-(MainGame.V_WIDTH/5)-3))/PPM,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+			
 		}
 		else{
 			redo = false;
 		}
-		}
 		
-		System.out.println("---------" + def.position.x);
+		//def.position.set(0.9f,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		//def.position.set(2.4f,(b2dCam.position.y - (MainGame.V_HEIGHT*2)/PPM));
+		
+		
+		
+	
+		
+		System.out.println("+" + def.position.x);
 
+		
+		
+		if(redo == false){
 		def.type = BodyType.StaticBody;
+		
+		
 		Body body = world.createBody(def);
 		
+		
 		PolygonShape shape = new PolygonShape();
-		float width = randInt(5, 8);
+		float width = randInt(6, 7);
 		shape.setAsBox((MainGame.V_WIDTH/width)/PPM, 5/PPM); //half width half height, so 100, 10
 		width = (MainGame.V_WIDTH/width)/PPM;
+		
+		System.out.println("@@@@@@@" + width);
 		
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
@@ -688,6 +722,7 @@ public class Menu extends AbstractScreen {
 		fdef.filter.categoryBits = B2DVars.BIT_GROUND;
 		fdef.filter.maskBits = B2DVars.BIT_PLAYER;
 		body.createFixture(fdef).setUserData("Ground");
+		
 		
 		
 	
@@ -710,6 +745,8 @@ public class Menu extends AbstractScreen {
 		//obstacleList.add(body);
 		//lightList.add(t);
 		shape.dispose();
+		}
+		
 		
 		
 	}
@@ -810,6 +847,49 @@ public class Menu extends AbstractScreen {
 		lastDepth = 0;
 		lastStop = 0;
 		score = 0;
+	}
+	
+public void wallEvent(){
+		
+		long s = System.currentTimeMillis();
+		
+		//System.out.println(r);
+	
+		if(s - wallInterval > r){
+			
+			r = randInt(10000, 40000);
+			
+			wallEvent = !wallEvent;
+			wallInterval = s;
+		}
+		if(wallEvent){
+			wallEvent = false;
+			System.out.println(leftWall.getBody().getPosition().x);
+			System.out.println("GOING---------------------------------------");
+			if(!AssetLoader.caveIn.isPlaying()){
+				AssetLoader.caveIn.play();
+			}
+			leftWall.getBody().setLinearVelocity(new Vector2(10/PPM, player.getBody().getLinearVelocity().y));
+			rightWall.getBody().setLinearVelocity(new Vector2(-10/PPM, player.getBody().getLinearVelocity().y));	
+		}
+			
+		else if(leftWall.getBody().getPosition().x > 60/PPM){
+
+			
+			//if(!AssetLoader.caveIn.isPlaying()){
+			//	AssetLoader.caveIn.play();
+			//}
+			//System.out.println("RESTORING---------------------------------------");
+			leftWall.getBody().setLinearVelocity(new Vector2(-10/PPM, player.getBody().getLinearVelocity().y));
+			rightWall.getBody().setLinearVelocity(new Vector2(10/PPM, player.getBody().getLinearVelocity().y));
+		}
+		else if(leftWall.getBody().getPosition().x <= 0/PPM){
+			//System.out.println("STOPPED---------------------------------------");
+			leftWall.getBody().setLinearVelocity(new Vector2(0/PPM, player.getBody().getLinearVelocity().y));
+			rightWall.getBody().setLinearVelocity(new Vector2(0/PPM, player.getBody().getLinearVelocity().y));
+		}
+		
+		
 	}
 	
 	public static int randInt(int min, int max) {

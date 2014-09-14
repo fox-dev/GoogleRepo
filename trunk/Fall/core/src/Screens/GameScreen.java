@@ -215,6 +215,9 @@ public class GameScreen extends AbstractScreen {
 		AssetLoader.bgm.play();
 		AssetLoader.bgm.setLooping(true);
 		
+		cam.zoom = 1f;
+		b2dCam.zoom = 1f;
+		
 	}
 	
 	public void handleInput(){
