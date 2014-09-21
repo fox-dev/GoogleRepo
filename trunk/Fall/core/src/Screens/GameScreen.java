@@ -31,6 +31,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -83,8 +84,9 @@ public class GameScreen extends AbstractScreen {
 	
 	private Color transitionColor;
 	
-	private TweenManager manager;
-	private Value alpha = new Value();
+	private TweenManager manager, menuManager;
+	private Value alpha = new Value(), menuVal = new Value();
+	Texture menu = AssetLoader.menu;
 	
 	
 	private long wallInterval = 0;
@@ -1016,7 +1018,7 @@ public class GameScreen extends AbstractScreen {
 					fadeIn = 1f;
 				}
 			}	
-			
+			menuTransition(1/60f);
 			float w = font.getBounds("Game Over").width;
 			float h = font.getBounds("Game Over").height;
 			font.draw(sb2, "Game Over", cam.position.x - w/2 , cam.position.y + h/2 + font.getXHeight());
@@ -1086,8 +1088,10 @@ public class GameScreen extends AbstractScreen {
 	public void prepareTransition(int r, int g, int b, float duration) {
 		transitionColor.set(r / 255.0f, g / 255.0f, b / 255.0f, 1);
 		alpha.setValue(1);
+		menuVal.setValue(cam.position.x - B2DVars.TRUE_WIDTH/2);
 		Tween.registerAccessor(Value.class, new ValueAccessor());
 		manager = new TweenManager();
+		menuManager = new TweenManager();
 		Tween.to(alpha, -1, duration).target(0)
 				.ease(TweenEquations.easeOutQuad).start(manager);
 	}
@@ -1107,6 +1111,17 @@ public class GameScreen extends AbstractScreen {
 		}
 	}
 	
+	public void menuTransition(float delta)
+	{
+		Tween.to(menuVal, -1, 0.15f).target(cam.position.x - 100).start(menuManager);
+		if (menuVal.getValue() <= cam.position.x) {
+			menuManager.update(delta);
+		}
+		System.out.println(menuVal.getValue()+ ", " + cam.position.x);
+		sb2.draw(menu, menuVal.getValue(), cam.position.y - 75, 200, 150); 
+	}
+	
+
 
 
 

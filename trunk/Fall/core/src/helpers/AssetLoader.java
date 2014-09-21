@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 public class AssetLoader {
 	private HashMap<String, Texture> textures;
 	
-	public static Texture player, cliffWalls, ledgeA, ledgeB, logoTexture, bg, bg2, mbg, lampTexture;
+	public static Texture player, cliffWalls, ledgeA, ledgeB, logoTexture, bg, bg2, mbg, lampTexture, menu;
 	
 	//middle ledge textures
 	public static Texture ledgeO, ledgeP, ledgeBL, ledgeR, ledgeOR, ledgePI, ledgeG, ledgeLB;
@@ -21,7 +21,7 @@ public class AssetLoader {
 	
 	//public static TextureRegion playerLeft, playerMid, playerRight;
 	public static TextureRegion logo, cliffJumper1, cliffJumper2, cliffJumper3, cliffJumper4, 
-								wallLeft, wallRight, ledgeLeft, ledgeRight, lamp;
+								wallLeft, wallRight, ledgeLeft, ledgeRight, lamp, menuGO;
 	
 	//middle ledege textures
 	public static TextureRegion ledgePurple, ledgeOrange, ledgeBlue, ledgeGreen, ledgeRed, ledgeOrangeRed, ledgePink,
@@ -39,7 +39,8 @@ public class AssetLoader {
 	
 	public static void load()
 	{
-		logoTexture = new Texture(Gdx.files.internal("data/logo.png"));
+		menu = new Texture(Gdx.files.internal("data/Menubox.png"));
+		logoTexture = new Texture(Gdx.files.internal("data/CrypticFoxLogoFinal.png"));
 		player = new Texture(Gdx.files.internal("data/basejumperanimatewhite.png"));
 		cliffWalls = new Texture(Gdx.files.internal("data/cliff-wallsblue.png"));
 		
