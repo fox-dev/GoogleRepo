@@ -22,6 +22,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
@@ -34,6 +37,12 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.mygdx.game.MainGame;
@@ -47,6 +56,11 @@ import helpers.AssetLoader;
 import helpers.B2DVars;
 
 public class Menu extends AbstractScreen {
+	
+	//ButtonStuff
+	Skin skin;
+	Stage stage;
+	//
 	
 	public static final float STEP = 1 / 60f; 
 	public float runTime = 0f;
@@ -109,13 +123,64 @@ public class Menu extends AbstractScreen {
 	boolean down = false;
 	private boolean wallEvent = false;
 
-	public Menu(GameScreenManager gsm) {
+	public Menu(final GameScreenManager gsm) {
 		super(gsm);
 		cam.position.set(
 				0,0,
 				0
 			);
 		cam.update();
+		
+		//button stuff
+		stage = new Stage();
+		skin = new Skin();
+		// Generate a 1x1 white texture and store it in the skin named "white".
+        Pixmap pixmap = new Pixmap(100, 50, Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        
+        skin.add("white", new Texture(pixmap));
+        
+        // Store the default libgdx font under the name "default".
+        BitmapFont bfont=new BitmapFont();
+        bfont.scale(1);
+        skin.add("default",bfont);
+        
+        // Configure a TextButtonStyle and name it "default". Skin resources are stored by type, so this doesn't overwrite the font.
+        TextButtonStyle textButtonStyle = new TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
+        textButtonStyle.down = skin.newDrawable("white", Color.DARK_GRAY);
+        //textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+        textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
+ 
+        textButtonStyle.font = skin.getFont("default");
+ 
+        skin.add("default", textButtonStyle);
+        
+        // Create a button with the "default" TextButtonStyle. A 3rd parameter can be used to specify a name other than "default".
+        TextButton textButton=new TextButton("PLAY",textButtonStyle);
+       
+        textButton.addListener(new InputListener() {
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                    Gdx.app.log("my app", "Pressed"); //** Usually used to start Game, etc. **//
+                    return true;
+            }
+            
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                    Gdx.app.log("my app", "Released");
+                    gsm.setScreen(101);
+        			gsm.set();
+                
+                    
+            }
+        }); 
+      
+        textButton.setPosition(Gdx.graphics.getWidth()/2 - 100/2, Gdx.graphics.getHeight()/2 - 60);
+        
+        stage.addActor(textButton);
+        Gdx.input.setInputProcessor(stage);
+  
+		//
 		
 		world = new World(new Vector2(0, -9.81f), true);
 		
@@ -138,6 +203,7 @@ public class Menu extends AbstractScreen {
 		
 		td = new ConeLight(handler, 40, Color.GRAY,100/PPM, player.getPosition().x, player.getPosition().y + 120/PPM, 270, 15);	
 
+		
 
 		
 				
@@ -154,7 +220,7 @@ public class Menu extends AbstractScreen {
 		Gdx.gl.glViewport((int) viewport.x, (int) viewport.y,
                 (int) viewport.width, (int) viewport.height);
 		
-		
+		stage.act();
 		world.step(1/60f, 1, 1);
 		player.update(1/60f);
 		td.setPosition(player.getPosition().x, player.getPosition().y + 3/PPM);
@@ -377,7 +443,9 @@ public class Menu extends AbstractScreen {
 		
 		
 		
-		
+		//stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
+        stage.draw();
+       
 		
 	
 		
@@ -431,7 +499,7 @@ public class Menu extends AbstractScreen {
 		runTime += dt;
 		//System.out.println("MENU");
 		lastState = state;
-		handleInput();
+		//handleInput();
 		
 		
 	}
@@ -464,8 +532,8 @@ public class Menu extends AbstractScreen {
 		if(MyInput.isPressed(MyInput.BUTTON1)){
 			System.out.println("pressed z");
 		
-			gsm.setScreen(101);
-			gsm.set();
+			//gsm.setScreen(101);
+			//gsm.set();
 			
 			//if(cl.isPlayerOnGround()){
 				//playerBody.applyForceToCenter(0,200,true);

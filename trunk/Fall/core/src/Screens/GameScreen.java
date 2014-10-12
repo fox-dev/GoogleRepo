@@ -71,6 +71,7 @@ import handlers.GameScreenManager;
 import handlers.Middleground;
 import handlers.MyContactListener;
 import handlers.MyInput;
+import handlers.MyInputProcessor;
 
 public class GameScreen extends AbstractScreen {
 	
@@ -163,7 +164,7 @@ public class GameScreen extends AbstractScreen {
 	
 	public GameScreen(GameScreenManager gsm) {
 		super(gsm);
-		
+		Gdx.input.setInputProcessor(new MyInputProcessor());
 		cam.position.set(
 				0,0,
 				0
