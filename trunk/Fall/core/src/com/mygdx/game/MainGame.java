@@ -32,8 +32,8 @@ public class MainGame extends Game {
 	
 	@Override
 	public void create () {
-		Gdx.input.setInputProcessor(new MyInputProcessor());
-
+		//Gdx.input.setInputProcessor(new MyInputProcessor());
+		
 		AssetLoader.load();
 		
 		sb = new SpriteBatch();

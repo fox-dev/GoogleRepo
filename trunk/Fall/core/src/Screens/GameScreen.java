@@ -52,6 +52,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.MainGame;
 
 import objects.Lamp;
@@ -220,6 +222,10 @@ public class GameScreen extends AbstractScreen {
 		
 		cam.zoom = 1f;
 		b2dCam.zoom = 1f;
+		
+		
+		
+		
 		
 	}
 	
@@ -924,6 +930,7 @@ public class GameScreen extends AbstractScreen {
 	
 	public void reset()
 	{
+		MyInput.setKey(MyInput.BUTTON1, false);
 		lastDepth = 0;
 		lastStop = 0;
 		score = 0;
