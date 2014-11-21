@@ -28,6 +28,8 @@ public class MainGame extends Game {
 	private OrthographicCamera hudCam;
 	
 	private GameScreenManager gsm;
+	
+	
 
 	
 	@Override

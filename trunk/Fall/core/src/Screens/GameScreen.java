@@ -30,6 +30,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -50,6 +51,13 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -77,8 +85,16 @@ import handlers.MyInputProcessor;
 
 public class GameScreen extends AbstractScreen {
 	
-	
+	// ButtonStuff
+		Skin skin;
+		Stage stage;
+		TextButton retryButton;
+		TextButton menuButton;
+    //
+		
+
 	SpriteBatch sb2;
+	
 	
 	private boolean debug = false;
 	
@@ -99,7 +115,7 @@ public class GameScreen extends AbstractScreen {
 	boolean down = false;
 	private boolean wallEvent = false;
 	
-	//PointLight p;
+	
 	
 	Rectangle glide;
 	private float glide_x = 50;
@@ -146,12 +162,9 @@ public class GameScreen extends AbstractScreen {
 	private OrthographicCamera b2dCam;
 	
 	private RayHandler handler;
-	private RayHandler pHandler;
 	
 	private Player player;
-	ConeLight td;
-	
-	ConeLight bd;
+	//ConeLight td;
 		
 	private LeftWall leftWall, lWallRepeat;
 	private RightWall rightWall, rWallRepeat;
@@ -164,7 +177,7 @@ public class GameScreen extends AbstractScreen {
 	
 	
 	
-	public GameScreen(GameScreenManager gsm) {
+	public GameScreen(final GameScreenManager gsm) {
 		super(gsm);
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 		cam.position.set(
@@ -172,6 +185,8 @@ public class GameScreen extends AbstractScreen {
 				0
 			);
 		cam.update();
+		
+		sb = new SpriteBatch();
 		
 		transitionColor = new Color();
 		prepareTransition(255, 255, 255, .5f);
@@ -198,7 +213,6 @@ public class GameScreen extends AbstractScreen {
 		b2dCam.setToOrtho(false, MainGame.V_WIDTH/PPM , MainGame.V_HEIGHT/PPM );
 		box2dLight.RayHandler.useDiffuseLight(true);
 		handler = new RayHandler(world, viewport);
-		pHandler = new RayHandler(world, viewport);
 		
 		handler.setAmbientLight(0.0f, 0.0f, 0.0f,0.1f);
 		
@@ -207,14 +221,12 @@ public class GameScreen extends AbstractScreen {
 		handler.setShadows(true);
 		
 		handler.setAmbientLight(0.3f);
-		pHandler.setAmbientLight(1f);
+	
+
 		
+		//td = new ConeLight(handler, 40, Color.GRAY,100/PPM, player.getPosition().x, player.getPosition().y + 120/PPM, 270, 15);	
 		
-		
-		td = new ConeLight(handler, 40, Color.GRAY,100/PPM, player.getPosition().x, player.getPosition().y + 120/PPM, 270, 15);	
-		
-		bd = new ConeLight(pHandler, 40, Color.GRAY,100/PPM, backgrounds[0].getXPosition()/PPM, backgrounds[4].getYPosition()/PPM, 270, 50);	
-		
+				
 		sb2 = new SpriteBatch();
 		
 		AssetLoader.bgm.play();
@@ -223,6 +235,91 @@ public class GameScreen extends AbstractScreen {
 		cam.zoom = 1f;
 		b2dCam.zoom = 1f;
 		
+		// button stuff
+		 		int xS = 60;
+		 		int yS = 25;
+		 		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+				stage = new Stage(new FitViewport(viewport.width, viewport.height));
+				skin = new Skin();
+				// Generate a 1x1 white texture and store it in the skin named "white".
+				Pixmap pixmap = new Pixmap(xS, yS, Format.RGBA8888);
+				pixmap.setColor(Color.WHITE);
+				pixmap.fill();
+
+				skin.add("white", new Texture(pixmap));
+
+				// Store the default libgdx font under the name "default".
+				BitmapFont bfont = new BitmapFont();
+				bfont.scale((float) 0.1);
+				skin.add("default", bfont);
+
+				// Configure a TextButtonStyle and name it "default". Skin resources are
+				// stored by type, so this doesn't overwrite the font.
+				TextButtonStyle textButtonStyle = new TextButtonStyle();
+				textButtonStyle.up = skin.newDrawable("white", Color.DARK_GRAY);
+				textButtonStyle.down = skin.newDrawable("white", Color.LIGHT_GRAY);
+				// textButtonStyle.checked = skin.newDrawable("white", Color.BLUE);
+				textButtonStyle.over = skin.newDrawable("white", Color.LIGHT_GRAY);
+
+				textButtonStyle.font = skin.getFont("default");
+
+				skin.add("default", textButtonStyle);
+
+				// Create a button with the "default" TextButtonStyle. A 3rd parameter
+				// can be used to specify a name other than "default".
+				retryButton = new TextButton("RETRY", textButtonStyle);
+				retryButton.setSize(xS, yS);
+				retryButton.setPosition(MainGame.V_WIDTH/2 - xS/2,MainGame.V_HEIGHT/5);
+
+				retryButton.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x, float y,
+							int pointer, int button) {
+						Gdx.app.log("my app", "Pressed"); // ** Usually used to start
+															// Game, etc. **//
+						return true;
+					}
+
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						Gdx.app.log("my app", "Released");
+
+						// Gdx.input.setInputProcessor(new MyInputProcessor());
+						stage.clear();
+						gsm.setScreen(101);
+						gsm.set();
+
+					}
+				});	
+				
+				//create the return to menu button
+				menuButton = new TextButton("MENU", textButtonStyle);
+				menuButton.setSize(xS, yS);
+				menuButton.setPosition(MainGame.V_WIDTH/4 - xS/2,MainGame.V_HEIGHT/5);
+
+				menuButton.addListener(new InputListener() {
+					public boolean touchDown(InputEvent event, float x, float y,
+							int pointer, int button) {
+						Gdx.app.log("my app", "Pressed"); // ** Usually used to start
+															// Game, etc. **//
+						return true;
+					}
+
+					public void touchUp(InputEvent event, float x, float y,
+							int pointer, int button) {
+						Gdx.app.log("my app", "Released");
+
+						// Gdx.input.setInputProcessor(new MyInputProcessor());
+						stage.clear();
+						gsm.setScreen(100);
+						gsm.set();
+
+					}
+				});	
+				
+	
+				stage.getViewport().setCamera(hudCam);
+				stage.addActor(retryButton);
+				stage.addActor(menuButton);
 		
 		
 		
@@ -377,10 +474,10 @@ public class GameScreen extends AbstractScreen {
 			world.step(1/60f, 1, 1);
 			player.update(1/60f);
 		}
-		bd.setPosition(backgrounds[4].getXPosition() + 200/PPM, cam.position.y/PPM + CL/PPM);
+		
 		
 
-		td.setPosition(player.getPosition().x, player.getPosition().y + 3/PPM);
+		//td.setPosition(player.getPosition().x, player.getPosition().y + 3/PPM);
 		
 		
 	
@@ -406,7 +503,7 @@ public class GameScreen extends AbstractScreen {
 				temp.update(1/60f);
 			temp.render(sb);
 		}
-		pHandler.updateAndRender();
+		
 		
 		Array<Body> tempBodies = new Array<Body>();
 		world.getBodies(tempBodies);
@@ -943,6 +1040,7 @@ public class GameScreen extends AbstractScreen {
 		float h = font.getBounds("Score " + (int)score).height;
 		font.setUseIntegerPositions(false);
 		font.draw(sb,String.valueOf("Score " + (int)score) , x, y);
+		
 		sb.end();
 	}
 	
@@ -1012,7 +1110,7 @@ public class GameScreen extends AbstractScreen {
 	
 	public void gameOver(){
 		
-		td.setActive(false);
+		//td.setActive(false);
 		drawTransition(1/60f);
 		
 		if(gameOverRunTime >= 0.5f){
@@ -1031,6 +1129,11 @@ public class GameScreen extends AbstractScreen {
 			float h = font.getBounds("Game Over").height;
 			font.draw(sb2, "Game Over", cam.position.x - w/2 , cam.position.y + h/2 + font.getXHeight());
 			sb2.end();
+			stage.act();
+			sb.setProjectionMatrix(hudCam.combined);
+			stage.draw();
+			sb.setProjectionMatrix(cam.combined);
+			Gdx.input.setInputProcessor(stage);
 			drawScore(sb, cam.position.x - w/2, cam.position.y + h/2 - font.getXHeight());
 		}
 		
@@ -1084,11 +1187,21 @@ public class GameScreen extends AbstractScreen {
 		
 		
 		handler.dispose();
+	
 		world.dispose();
 		b2dr.dispose();
 		font.dispose();
+		stage.dispose();
 		
+	
 		sb2.dispose();
+		sb.dispose();
+		
+		shapeRenderer.dispose();
+		skin.dispose();
+		menu.dispose();
+		
+	
 		
 	}
 	

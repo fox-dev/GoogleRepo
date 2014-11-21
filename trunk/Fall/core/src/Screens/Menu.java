@@ -26,6 +26,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -41,6 +42,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.utils.Array;
@@ -55,7 +57,6 @@ import handlers.Background;
 import handlers.GameScreenManager;
 import handlers.Middleground;
 import handlers.MyInput;
-import handlers.MyInputProcessor;
 import helpers.AssetLoader;
 import helpers.B2DVars;
 
@@ -65,6 +66,8 @@ public class Menu extends AbstractScreen {
 	Skin skin;
 	Stage stage;
 	TextButton textButton;
+	Table menuTable;
+	Viewport v;
 	//
 
 	public static final float STEP = 1 / 60f;
@@ -102,7 +105,7 @@ public class Menu extends AbstractScreen {
 	int lights = 0;
 	int grow = 49;
 	private RayHandler handler;
-	ConeLight td;
+	//ConeLight td;
 
 	// LEDGESTUFF
 	float depth = 0, score = 0, lastDepth = 0, lastStop = 0, multi = 1;
@@ -132,12 +135,18 @@ public class Menu extends AbstractScreen {
 		cam.position.set(0, 0, 0);
 		cam.update();
 
-		
+		sb = new SpriteBatch();
 
+		
 		int x = 48;
 		int y = 25;
 		// button stuff
-		stage = new Stage();
+		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		v = new FitViewport(viewport.width, viewport.height);
+		stage = new Stage(v);
+		
+		//stage.setViewport(new FitViewport(viewport.width, viewport.height));
+		
 		skin = new Skin();
 		// Generate a 1x1 white texture and store it in the skin named "white".
 		Pixmap pixmap = new Pixmap(x, y, Format.RGBA8888);
@@ -148,7 +157,7 @@ public class Menu extends AbstractScreen {
 
 		// Store the default libgdx font under the name "default".
 		BitmapFont bfont = new BitmapFont();
-		bfont.scale((float) 0.1);
+		
 		skin.add("default", bfont);
 
 		// Configure a TextButtonStyle and name it "default". Skin resources are
@@ -166,9 +175,11 @@ public class Menu extends AbstractScreen {
 		// Create a button with the "default" TextButtonStyle. A 3rd parameter
 		// can be used to specify a name other than "default".
 		textButton = new TextButton("PLAY", textButtonStyle);
-		textButton.setSize(x, y);
-		textButton.setPosition(MainGame.V_WIDTH/2 - x/2,MainGame.V_HEIGHT/5);
-
+		//textButton.setSize(x, y);
+		textButton.setBounds(MainGame.V_WIDTH/2 - x/2 , MainGame.V_HEIGHT/5, x, y);
+		
+		
+		//textButton.setPosition(MainGame.V_WIDTH/2,MainGame.V_HEIGHT/2);
 		textButton.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
@@ -185,11 +196,18 @@ public class Menu extends AbstractScreen {
 				stage.clear();
 				gsm.setScreen(101);
 				gsm.set();
+			
 
 			}
 		});
 
+		
+		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		stage.getViewport().setCamera(hudCam);
+		//stage.setViewport(new FitViewport(viewport.width, viewport.height));
+	
+	
+		//menuTable.setBounds(MainGame.V_WIDTH/2, MainGame.V_HEIGHT/2, 100, 100);
 		stage.addActor(textButton);
 		Gdx.input.setInputProcessor(stage);
 
@@ -215,27 +233,34 @@ public class Menu extends AbstractScreen {
 		handler.setShadows(true);
 		handler.setAmbientLight(0.3f);
 
-		td = new ConeLight(handler, 40, Color.GRAY, 100 / PPM,
-				player.getPosition().x, player.getPosition().y + 120 / PPM,
-				270, 15);
+		//td = new ConeLight(handler, 40, Color.GRAY, 100 / PPM,
+		//		player.getPosition().x, player.getPosition().y + 120 / PPM,
+		//		270, 15);
 
 	}
 
 	public void render() {
+		
 		// System.out.println(Gdx.graphics.getWidth());
 		// System.out.println(MainGame.V_WIDTH);
 
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glViewport((int) viewport.x, (int) viewport.y,
 				(int) viewport.width, (int) viewport.height);
+		
+		
+		
+		//System.out.println(stage.getViewport().getWorldWidth() + "!!!!!!!!!!!!!" +viewport.width);
+	
+		
 
-		stage.act();
+		
 		world.step(1 / 60f, 1, 1);
 		player.update(1 / 60f);
-		td.setPosition(player.getPosition().x, player.getPosition().y + 3 / PPM);
+		//td.setPosition(player.getPosition().x, player.getPosition().y + 3 / PPM);
 
 		// player.renderSample(sb);
 
@@ -443,10 +468,11 @@ public class Menu extends AbstractScreen {
 		font.draw(sb, "START", cam.position.x - w / 2, cam.position.y + h / 2);
 		sb.end();
 
-		System.out.println(h + "!!!!!!!!!");
+		
 
 		// stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
 		sb.setProjectionMatrix(hudCam.combined);
+		stage.act();
 		stage.draw();
 	
 
@@ -496,28 +522,7 @@ public class Menu extends AbstractScreen {
 
 	}
 
-	public void dispose() {
-		Array<Body> temps = new Array<Body>();
-
-		AssetLoader.caveIn.stop();
-
-		world.getBodies(temps);
-
-		for (Body b : temps) {
-			world.destroyBody(b);
-			System.out
-					.println(world.getBodyCount()
-							+ "-----------------------------------------------------------"
-							+ temps.size);
-		}
-		temps.clear();
-
-		handler.dispose();
-		world.dispose();
-		b2dr.dispose();
-		font.dispose();
-
-	}
+	
 
 	public void handleInput() {
 		if (MyInput.isPressed(MyInput.BUTTON1)) {
@@ -587,7 +592,7 @@ public class Menu extends AbstractScreen {
 
 	}
 
-	public void resize(int width, int height) {
+	public void resized(int width, int height) {
 		float aspectRatio;
 
 		aspectRatio = (float) width / (float) height;
@@ -1007,6 +1012,45 @@ public class Menu extends AbstractScreen {
 
 	public boolean justSwitchB() {
 		return !state && lastState;
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		System.out.println("CALLED !!!!");
+		
+		
+	}
+	
+public void dispose(){
+		
+		Array<Body> temps = new Array<Body>();
+		
+		AssetLoader.caveIn.stop();
+		
+		world.getBodies(temps);
+		
+		for(Body b : temps){
+			world.destroyBody(b);
+			System.out.println(world.getBodyCount() + "-----------------------------------------------------------" + temps.size);
+		}
+		temps.clear();
+		
+		
+		handler.dispose();
+		world.dispose();
+		b2dr.dispose();
+		font.dispose();
+		stage.dispose();
+		skin.dispose();
+		
+		sb.dispose();
+		
+	
+		
+		
+		
+		
+		
 	}
 
 }
