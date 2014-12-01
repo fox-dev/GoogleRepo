@@ -51,6 +51,8 @@ public class AnimatedBackground extends Background
 				width, height
 				);
 		sb.end();
+		
+		
 	}
 	
 	public void load(){

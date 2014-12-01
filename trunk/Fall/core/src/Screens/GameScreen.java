@@ -13,13 +13,6 @@ import Lights.RayHandler;
 
 
 
-
-
-
-
-
-
-
 import TweenAccessors.Value;
 import TweenAccessors.ValueAccessor;
 import aurelienribon.tweenengine.Tween;
@@ -327,8 +320,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	public void handleInput(){
-		
-		//System.out.println(accelX);
+	
 		
 		if(!gameOverFlag){
 			if(accelX > -2 && accelX < 2 ){
@@ -422,6 +414,8 @@ public class GameScreen extends AbstractScreen {
 			}
 			
 		}
+		
+		/* No longer needed for resetting game on gameOver.
 		else{
 			if(MyInput.isPressed(MyInput.BUTTON1)){
 				gsm.setScreen(100);
@@ -431,7 +425,7 @@ public class GameScreen extends AbstractScreen {
 			}
 			
 		}
-		
+		*/
 		
 	}
 	
@@ -638,7 +632,6 @@ public class GameScreen extends AbstractScreen {
 		}
 		
 		if(cl.isPlayerOnGround() == true){
-			System.out.println("dead");
 			gameOverFlag = true;
 			
 			
@@ -1036,13 +1029,30 @@ public class GameScreen extends AbstractScreen {
 	public void drawScore(SpriteBatch sb, float x, float y)
 	{
 		sb.begin();
-		float w = font.getBounds("Score " + (int)score).width;
-		float h = font.getBounds("Score " + (int)score).height;
+		float w = font.getBounds("Score: " + (int)score).width;
+		float h = font.getBounds("Score: " + (int)score).height;
 		font.setUseIntegerPositions(false);
-		font.draw(sb,String.valueOf("Score " + (int)score) , x, y);
+		font.draw(sb,String.valueOf("Score: " + (int)score) , x, y);
 		
 		sb.end();
 	}
+	
+	public void drawHighScore(SpriteBatch sb, float x, float y)
+	{
+		if(score > AssetLoader.getHighScore()){
+			AssetLoader.setHighScore((int)score);
+		}
+		sb.begin();
+		float w = font.getBounds("HighScore: " +  AssetLoader.getHighScore()).width;
+		float h = font.getBounds("HighScore: " +  AssetLoader.getHighScore()).height;
+		font.setUseIntegerPositions(false);
+		font.draw(sb,String.valueOf("HighScore: " + AssetLoader.getHighScore()) , x, y);
+		
+		sb.end();
+	}
+	
+	
+	
 	
 	public void drawMulitplier(SpriteBatch sb, float x, float y)
 	{
@@ -1088,8 +1098,8 @@ public class GameScreen extends AbstractScreen {
 		font.setUseIntegerPositions(false);
 		font.draw(sb,String.valueOf((int)depth + "ft") , cam.position.x - game.V_WIDTH/2, cam.position.y + game.V_HEIGHT/2);
 		sb.end();
-		float wScore = font.getBounds("Score " + (int)score).width;
-		float hScore = font.getBounds("Score " + (int)score).height;
+		float wScore = font.getBounds("Score: " + (int)score).width;
+		float hScore = font.getBounds("Score: " + (int)score).height;
 		drawScore(sb, cam.position.x + game.V_WIDTH/2 - wScore, cam.position.y + game.V_HEIGHT/2);
 		float wMulti = font.getBounds("Multiplier x" + (int)multi).width;
 		drawMulitplier(sb, cam.position.x + game.V_WIDTH/2 - wMulti, cam.position.y + game.V_HEIGHT/2 - hScore);
@@ -1134,7 +1144,10 @@ public class GameScreen extends AbstractScreen {
 			stage.draw();
 			sb.setProjectionMatrix(cam.combined);
 			Gdx.input.setInputProcessor(stage);
-			drawScore(sb, cam.position.x - w/2, cam.position.y + h/2 - font.getXHeight());
+			float w1 = font.getBounds("Score: " + (int)score).width;
+			drawScore(sb, cam.position.x - w1/2, cam.position.y + h/2 - font.getXHeight());
+			float w2 = font.getBounds("High Score: " + AssetLoader.getHighScore()).width; //Change methods later to already include this field
+			drawHighScore(sb, cam.position.x - w2/2, cam.position.y + h/2 - font.getXHeight()*3);
 		}
 		
 	}
@@ -1199,7 +1212,6 @@ public class GameScreen extends AbstractScreen {
 		
 		shapeRenderer.dispose();
 		skin.dispose();
-		menu.dispose();
 		
 	
 		

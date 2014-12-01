@@ -3,12 +3,15 @@ package helpers;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class AssetLoader {
+	public static Preferences prefs;
+	
 	private HashMap<String, Texture> textures;
 	
 	public static Texture player, cliffWalls, ledgeA, ledgeB, logoTexture, bg, bg2, mbg, lampTexture, menu;
@@ -39,6 +42,17 @@ public class AssetLoader {
 	
 	public static void load()
 	{
+		//Scores
+		// Create (or retrieve existing) preferences file
+		prefs = Gdx.app.getPreferences("Fall");
+		
+		// Provide default high score of 0
+		if (!prefs.contains("highScore")) {
+		    prefs.putInteger("highScore", 0);
+		}
+		
+		//
+	
 		menu = new Texture(Gdx.files.internal("data/Menubox.png"));
 		logoTexture = new Texture(Gdx.files.internal("data/CrypticFoxLogoFinal.png"));
 		player = new Texture(Gdx.files.internal("data/basejumperanimatewhite.png"));
@@ -98,7 +112,7 @@ public class AssetLoader {
 		
 		lamp = new TextureRegion(lampTexture);
 		
-		bgm = Gdx.audio.newMusic(Gdx.files.internal("data/Greg_Davis_-_01_-_slow_motion.mp3"));
+		bgm = Gdx.audio.newMusic(Gdx.files.internal("data/DST-DreamInGreen (mp3cut.net).mp3"));
 		caveIn = Gdx.audio.newMusic(Gdx.files.internal("data/caveIn.mp3"));
 		hit = Gdx.audio.newSound(Gdx.files.internal("data/hit.mp3"));
 		
@@ -155,6 +169,17 @@ public class AssetLoader {
 		mbg.dispose();
 		
 		
+	}
+	
+	// Receives an integer and maps it to the String highScore in prefs
+	public static void setHighScore(int val) {
+	    prefs.putInteger("highScore", val);
+	    prefs.flush();
+	}
+	
+	// Retrieves the current high score
+	public static int getHighScore() {
+	    return prefs.getInteger("highScore");
 	}
 
 }

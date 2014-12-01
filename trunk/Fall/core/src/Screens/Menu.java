@@ -96,6 +96,7 @@ public class Menu extends AbstractScreen {
 	// BGSTUFF
 	private Background[] backgrounds;
 	private Middleground middleBgLeft, mLRepeat, middleBgRight, mRRepeat;
+	private Middleground[] middlegrounds;
 	// WALLSTUFF
 	private LeftWall leftWall, lWallRepeat;
 	private RightWall rightWall, rWallRepeat;
@@ -105,7 +106,7 @@ public class Menu extends AbstractScreen {
 	int lights = 0;
 	int grow = 49;
 	private RayHandler handler;
-	//ConeLight td;
+	 ConeLight td;
 
 	// LEDGESTUFF
 	float depth = 0, score = 0, lastDepth = 0, lastStop = 0, multi = 1;
@@ -137,16 +138,15 @@ public class Menu extends AbstractScreen {
 
 		sb = new SpriteBatch();
 
-		
 		int x = 48;
 		int y = 25;
 		// button stuff
 		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		v = new FitViewport(viewport.width, viewport.height);
 		stage = new Stage(v);
-		
-		//stage.setViewport(new FitViewport(viewport.width, viewport.height));
-		
+
+		// stage.setViewport(new FitViewport(viewport.width, viewport.height));
+
 		skin = new Skin();
 		// Generate a 1x1 white texture and store it in the skin named "white".
 		Pixmap pixmap = new Pixmap(x, y, Format.RGBA8888);
@@ -157,7 +157,7 @@ public class Menu extends AbstractScreen {
 
 		// Store the default libgdx font under the name "default".
 		BitmapFont bfont = new BitmapFont();
-		
+
 		skin.add("default", bfont);
 
 		// Configure a TextButtonStyle and name it "default". Skin resources are
@@ -175,11 +175,11 @@ public class Menu extends AbstractScreen {
 		// Create a button with the "default" TextButtonStyle. A 3rd parameter
 		// can be used to specify a name other than "default".
 		textButton = new TextButton("PLAY", textButtonStyle);
-		//textButton.setSize(x, y);
-		textButton.setBounds(MainGame.V_WIDTH/2 - x/2 , MainGame.V_HEIGHT/5, x, y);
-		
-		
-		//textButton.setPosition(MainGame.V_WIDTH/2,MainGame.V_HEIGHT/2);
+		// textButton.setSize(x, y);
+		textButton.setBounds(MainGame.V_WIDTH / 2 - x / 2,
+				MainGame.V_HEIGHT / 5, x, y);
+
+		// textButton.setPosition(MainGame.V_WIDTH/2,MainGame.V_HEIGHT/2);
 		textButton.addListener(new InputListener() {
 			public boolean touchDown(InputEvent event, float x, float y,
 					int pointer, int button) {
@@ -196,18 +196,16 @@ public class Menu extends AbstractScreen {
 				stage.clear();
 				gsm.setScreen(101);
 				gsm.set();
-			
 
 			}
 		});
 
-		
 		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		stage.getViewport().setCamera(hudCam);
-		//stage.setViewport(new FitViewport(viewport.width, viewport.height));
-	
-	
-		//menuTable.setBounds(MainGame.V_WIDTH/2, MainGame.V_HEIGHT/2, 100, 100);
+		// stage.setViewport(new FitViewport(viewport.width, viewport.height));
+
+		// menuTable.setBounds(MainGame.V_WIDTH/2, MainGame.V_HEIGHT/2, 100,
+		// 100);
 		stage.addActor(textButton);
 		Gdx.input.setInputProcessor(stage);
 
@@ -233,14 +231,14 @@ public class Menu extends AbstractScreen {
 		handler.setShadows(true);
 		handler.setAmbientLight(0.3f);
 
-		//td = new ConeLight(handler, 40, Color.GRAY, 100 / PPM,
-		//		player.getPosition().x, player.getPosition().y + 120 / PPM,
-		//		270, 15);
+		 td = new ConeLight(handler, 40, Color.GRAY, 100 / PPM,
+		 player.getPosition().x, player.getPosition().y + 120 / PPM,
+		 270, 15);
 
 	}
 
 	public void render() {
-		
+
 		// System.out.println(Gdx.graphics.getWidth());
 		// System.out.println(MainGame.V_WIDTH);
 
@@ -250,17 +248,14 @@ public class Menu extends AbstractScreen {
 		resized(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glViewport((int) viewport.x, (int) viewport.y,
 				(int) viewport.width, (int) viewport.height);
-		
-		
-		
-		//System.out.println(stage.getViewport().getWorldWidth() + "!!!!!!!!!!!!!" +viewport.width);
-	
-		
 
-		
+		// System.out.println(stage.getViewport().getWorldWidth() +
+		// "!!!!!!!!!!!!!" +viewport.width);
+
 		world.step(1 / 60f, 1, 1);
 		player.update(1 / 60f);
-		//td.setPosition(player.getPosition().x, player.getPosition().y + 3 / PPM);
+		 td.setPosition(player.getPosition().x, player.getPosition().y + 3 /
+		 PPM);
 
 		// player.renderSample(sb);
 
@@ -281,13 +276,25 @@ public class Menu extends AbstractScreen {
 					- middleBgLeft.getHeight());
 		}
 
+		//FIX Render middleground over the animated background//
 		for (Background temp : backgrounds) {
-			if (temp instanceof AnimatedBackground)
+			if (temp instanceof AnimatedBackground){
 				temp.update(runTime);
-			else
-				temp.update(1 / 60f);
+			}
+		
 			temp.render(sb);
 		}
+		
+		for (Middleground temp : middlegrounds) {
+			if (temp instanceof Middleground){
+				temp.update(1/60f);
+			}
+		
+			temp.render(sb);
+		}
+		///////////////////////////////////////////////////////
+		
+		
 
 		Array<Body> tempBodies = new Array<Body>();
 		world.getBodies(tempBodies);
@@ -383,7 +390,6 @@ public class Menu extends AbstractScreen {
 		hudCam.update();
 		cam.update();
 		sb.setProjectionMatrix(cam.combined);
-		
 
 		for (StaticSprite ledge : ledgeList) {
 			ledge.update();
@@ -468,15 +474,11 @@ public class Menu extends AbstractScreen {
 		font.draw(sb, "START", cam.position.x - w / 2, cam.position.y + h / 2);
 		sb.end();
 
-		
-
 		// stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 60f));
 		sb.setProjectionMatrix(hudCam.combined);
 		stage.act();
 		stage.draw();
-	
 
-		
 		sb.setProjectionMatrix(cam.combined);
 	}
 
@@ -521,8 +523,6 @@ public class Menu extends AbstractScreen {
 		// handleInput();
 
 	}
-
-	
 
 	public void handleInput() {
 		if (MyInput.isPressed(MyInput.BUTTON1)) {
@@ -613,8 +613,7 @@ public class Menu extends AbstractScreen {
 		float w = (float) MainGame.V_WIDTH * scale;
 		float h = (float) MainGame.V_HEIGHT * scale;
 		viewport = new Rectangle(crop.x, crop.y, w, h);
-		
-		
+
 	}
 
 	public void init() {
@@ -661,9 +660,10 @@ public class Menu extends AbstractScreen {
 				B2DVars.TRUE_WIDTH, middleBgRight.getYPosition()
 						- middleBgRight.getHeight(), 1f);
 
-		Background[] bgs = { middleBgLeft, mLRepeat, middleBgRight, mRRepeat,
-				bg };
+		Background[] bgs = {bg};
+		Middleground[] mgs = { middleBgLeft, mLRepeat, middleBgRight, mRRepeat};
 		backgrounds = bgs;
+		middlegrounds = mgs;
 
 		createWalls();
 	}
@@ -1017,40 +1017,35 @@ public class Menu extends AbstractScreen {
 	@Override
 	public void resize(int width, int height) {
 		System.out.println("CALLED !!!!");
-		
-		
+
 	}
-	
-public void dispose(){
-		
+
+	public void dispose() {
+
 		Array<Body> temps = new Array<Body>();
-		
+
 		AssetLoader.caveIn.stop();
-		
+
 		world.getBodies(temps);
-		
-		for(Body b : temps){
+
+		for (Body b : temps) {
 			world.destroyBody(b);
-			System.out.println(world.getBodyCount() + "-----------------------------------------------------------" + temps.size);
+			System.out
+					.println(world.getBodyCount()
+							+ "-----------------------------------------------------------"
+							+ temps.size);
 		}
 		temps.clear();
-		
-		
+
 		handler.dispose();
 		world.dispose();
 		b2dr.dispose();
 		font.dispose();
 		stage.dispose();
 		skin.dispose();
-		
+
 		sb.dispose();
-		
-	
-		
-		
-		
-		
-		
+
 	}
 
 }
